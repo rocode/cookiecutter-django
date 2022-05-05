@@ -1,0 +1,49 @@
+-r base.in
+
+pip-compile-multi  # https://github.com/peterdemin/pip-compile-multi
+Werkzeug[watchdog] # https://github.com/pallets/werkzeug
+ipdb  # https://github.com/gotcha/ipdb
+{%- if cookiecutter.use_docker == 'y' %}
+psycopg2  # https://github.com/psycopg/psycopg2
+{%- else %}
+psycopg2-binary  # https://github.com/psycopg/psycopg2
+{%- endif %}
+{%- if cookiecutter.use_async == 'y' or cookiecutter.use_celery == 'y' %}
+watchgod  # https://github.com/samuelcolvin/watchgod
+{%- endif %}
+
+# Testing
+# ------------------------------------------------------------------------------
+mypy  # https://github.com/python/mypy
+django-stubs  # https://github.com/typeddjango/django-stubs
+pytest  # https://github.com/pytest-dev/pytest
+pytest-sugar  # https://github.com/Frozenball/pytest-sugar
+{%- if cookiecutter.use_drf == "y" %}
+djangorestframework-stubs  # https://github.com/typeddjango/djangorestframework-stubs
+{%- endif %}
+
+# Documentation
+# ------------------------------------------------------------------------------
+sphinx  # https://github.com/sphinx-doc/sphinx
+sphinx-autobuild # https://github.com/GaretJax/sphinx-autobuild
+
+# Code quality
+# ------------------------------------------------------------------------------
+flake8  # https://github.com/PyCQA/flake8
+flake8-isort  # https://github.com/gforcada/flake8-isort
+coverage  # https://github.com/nedbat/coveragepy
+black  # https://github.com/psf/black
+pylint-django  # https://github.com/PyCQA/pylint-django
+{%- if cookiecutter.use_celery == 'y' %}
+pylint-celery  # https://github.com/PyCQA/pylint-celery
+{%- endif %}
+pre-commit  # https://github.com/pre-commit/pre-commit
+
+# Django
+# ------------------------------------------------------------------------------
+factory-boy  # https://github.com/FactoryBoy/factory_boy
+
+django-debug-toolbar  # https://github.com/jazzband/django-debug-toolbar
+django-extensions  # https://github.com/django-extensions/django-extensions
+django-coverage-plugin  # https://github.com/nedbat/django_coverage_plugin
+pytest-django  # https://github.com/pytest-dev/pytest-django

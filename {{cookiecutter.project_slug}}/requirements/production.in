@@ -1,0 +1,42 @@
+# PRECAUTION: avoid production dependencies that aren't in development
+
+-r base.in
+
+gunicorn  # https://github.com/benoitc/gunicorn
+psycopg2  # https://github.com/psycopg/psycopg2
+{%- if cookiecutter.use_whitenoise == 'n' %}
+Collectfast  # https://github.com/antonagestam/collectfast
+{%- endif %}
+{%- if cookiecutter.use_sentry == "y" %}
+sentry-sdk  # https://github.com/getsentry/sentry-python
+{%- endif %}
+{%- if cookiecutter.use_docker == "n" and cookiecutter.windows == "y" %}
+hiredis  # https://github.com/redis/hiredis-py
+{%- endif %}
+
+# Django
+# ------------------------------------------------------------------------------
+{%- if cookiecutter.cloud_provider == 'AWS' %}
+django-storages[boto3]  # https://github.com/jschneier/django-storages
+{%- elif cookiecutter.cloud_provider == 'GCP' %}
+django-storages[google]  # https://github.com/jschneier/django-storages
+{%- endif %}
+{%- if cookiecutter.mail_service == 'Mailgun' %}
+django-anymail[mailgun]  # https://github.com/anymail/django-anymail
+{%- elif cookiecutter.mail_service == 'Amazon SES' %}
+django-anymail[amazon_ses]  # https://github.com/anymail/django-anymail
+{%- elif cookiecutter.mail_service == 'Mailjet' %}
+django-anymail[mailjet]  # https://github.com/anymail/django-anymail
+{%- elif cookiecutter.mail_service == 'Mandrill' %}
+django-anymail[mandrill]  # https://github.com/anymail/django-anymail
+{%- elif cookiecutter.mail_service == 'Postmark' %}
+django-anymail[postmark]  # https://github.com/anymail/django-anymail
+{%- elif cookiecutter.mail_service == 'Sendgrid' %}
+django-anymail[sendgrid]  # https://github.com/anymail/django-anymail
+{%- elif cookiecutter.mail_service == 'SendinBlue' %}
+django-anymail[sendinblue]  # https://github.com/anymail/django-anymail
+{%- elif cookiecutter.mail_service == 'SparkPost' %}
+django-anymail[sparkpost]  # https://github.com/anymail/django-anymail
+{%- elif cookiecutter.mail_service == 'Other SMTP' %}
+django-anymail  # https://github.com/anymail/django-anymail
+{%- endif %}
