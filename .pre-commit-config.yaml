@@ -17,6 +17,13 @@ repos:
       - id: trailing-whitespace
       - id: check-yaml
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.32.1
+    hooks:
+      - id: pyupgrade
+        args: [--py39-plus]
+        exclude: hooks/
+
   - repo: https://github.com/psf/black
     rev: ae2c0758c9e61a385df9700dc9c231bf54887041  # frozen: 22.3.0
     hooks:
