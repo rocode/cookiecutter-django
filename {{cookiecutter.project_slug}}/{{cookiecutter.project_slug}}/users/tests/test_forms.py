@@ -1,13 +1,9 @@
-"""
-Module for all Form Tests.
-"""
-import pytest
+"""Module for all Form Tests."""
+
 from django.utils.translation import gettext_lazy as _
 
 from {{ cookiecutter.project_slug }}.users.forms import UserAdminCreationForm
 from {{ cookiecutter.project_slug }}.users.models import User
-
-pytestmark = pytest.mark.django_db
 
 
 class TestUserAdminCreationForm:
@@ -27,7 +23,11 @@ class TestUserAdminCreationForm:
         # hence cannot be created.
         form = UserAdminCreationForm(
             {
+                {%- if cookiecutter.username_type == "email" %}
+                "email": user.email,
+                {%- else %}
                 "username": user.username,
+                {%- endif %}
                 "password1": user.password,
                 "password2": user.password,
             }
@@ -35,5 +35,10 @@ class TestUserAdminCreationForm:
 
         assert not form.is_valid()
         assert len(form.errors) == 1
+        {%- if cookiecutter.username_type == "email" %}
+        assert "email" in form.errors
+        assert form.errors["email"][0] == _("This email has already been taken.")
+        {%- else %}
         assert "username" in form.errors
         assert form.errors["username"][0] == _("This username has already been taken.")
+        {%- endif %}

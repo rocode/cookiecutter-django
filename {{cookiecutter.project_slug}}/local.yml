@@ -11,14 +11,13 @@ services:
       dockerfile: ./compose/local/django/Dockerfile
     image: {{ cookiecutter.project_slug }}_local_django
     container_name: {{ cookiecutter.project_slug }}_local_django
-    platform: linux/x86_64
     depends_on:
       - postgres
       {%- if cookiecutter.use_celery == 'y' %}
       - redis
       {%- endif %}
-      {%- if cookiecutter.use_mailhog == 'y' %}
-      - mailhog
+      {%- if cookiecutter.use_mailpit == 'y' %}
+      - mailpit
       {%- endif %}
     volumes:
       - .:/app:z
@@ -26,7 +25,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
     ports:
-      - "8000:8000"
+      - '8000:8000'
     command: /start
 
   postgres:
@@ -36,15 +35,14 @@ services:
     image: {{ cookiecutter.project_slug }}_production_postgres
     container_name: {{ cookiecutter.project_slug }}_local_postgres
     volumes:
-      - {{ cookiecutter.project_slug }}_local_postgres_data:/var/lib/postgresql/data:Z
-      - {{ cookiecutter.project_slug }}_local_postgres_data_backups:/backups:z
+      - {{ cookiecutter.project_slug }}_local_postgres_data:/var/lib/postgresql/data
+      - {{ cookiecutter.project_slug }}_local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/.postgres
 
   docs:
     image: {{ cookiecutter.project_slug }}_local_docs
     container_name: {{ cookiecutter.project_slug }}_local_docs
-    platform: linux/x86_64
     build:
       context: .
       dockerfile: ./compose/local/docs/Dockerfile
@@ -55,13 +53,13 @@ services:
       - ./config:/app/config:z
       - ./{{ cookiecutter.project_slug }}:/app/{{ cookiecutter.project_slug }}:z
     ports:
-      - "9000:9000"
+      - '9000:9000'
     command: /start-docs
-  {%- if cookiecutter.use_mailhog == 'y' %}
+  {%- if cookiecutter.use_mailpit == 'y' %}
 
-  mailhog:
-    image: mailhog/mailhog:v1.0.0
-    container_name: {{ cookiecutter.project_slug }}_local_mailhog
+  mailpit:
+    image: docker.io/axllent/mailpit:latest
+    container_name: {{ cookiecutter.project_slug }}_local_mailpit
     ports:
       - "8025:8025"
 
@@ -69,7 +67,7 @@ services:
   {%- if cookiecutter.use_celery == 'y' %}
 
   redis:
-    image: redis:6
+    image: docker.io/redis:6
     container_name: {{ cookiecutter.project_slug }}_local_redis
 
   celeryworker:
@@ -79,8 +77,8 @@ services:
     depends_on:
       - redis
       - postgres
-      {%- if cookiecutter.use_mailhog == 'y' %}
-      - mailhog
+      {%- if cookiecutter.use_mailpit == 'y' %}
+      - mailpit
       {%- endif %}
     ports: []
     command: /start-celeryworker
@@ -92,8 +90,8 @@ services:
     depends_on:
       - redis
       - postgres
-      {%- if cookiecutter.use_mailhog == 'y' %}
-      - mailhog
+      {%- if cookiecutter.use_mailpit == 'y' %}
+      - mailpit
       {%- endif %}
     ports: []
     command: /start-celerybeat
@@ -103,11 +101,11 @@ services:
     image: {{ cookiecutter.project_slug }}_local_flower
     container_name: {{ cookiecutter.project_slug }}_local_flower
     ports:
-      - "5555:5555"
+      - '5555:5555'
     command: /start-flower
 
   {%- endif %}
-  {%- if cookiecutter.frontend_pipeline == 'Gulp' %}
+  {%- if cookiecutter.frontend_pipeline in ['Gulp', 'Webpack'] %}
 
   node:
     build:
@@ -123,8 +121,10 @@ services:
       - /app/node_modules
     command: npm run dev
     ports:
-      - "3000:3000"
+      - '3000:3000'
+      {%- if cookiecutter.frontend_pipeline == 'Gulp' %}
       # Expose browsersync UI: https://www.browsersync.io/docs/options/#option-ui
-      - "3001:3001"
+      - '3001:3001'
+      {%- endif %}
 
   {%- endif %}

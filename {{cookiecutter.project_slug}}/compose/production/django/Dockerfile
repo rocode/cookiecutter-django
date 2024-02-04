@@ -1,7 +1,5 @@
-ARG PYTHON_VERSION=3.9-slim-bullseye
-
-{% if cookiecutter.frontend_pipeline == 'Gulp' -%}
-FROM node:16-bullseye-slim as client-builder
+{% if cookiecutter.frontend_pipeline in ['Gulp', 'Webpack'] -%}
+FROM docker.io/node:20-bookworm-slim as client-builder
 
 ARG APP_HOME=/app
 WORKDIR ${APP_HOME}
@@ -9,15 +7,28 @@ WORKDIR ${APP_HOME}
 COPY ./package.json ${APP_HOME}
 RUN npm install && npm cache clean --force
 COPY . ${APP_HOME}
+{%- if cookiecutter.frontend_pipeline == 'Webpack' and cookiecutter.use_whitenoise == 'n' %}
+{%- if cookiecutter.cloud_provider == 'AWS' %}
+ARG DJANGO_AWS_STORAGE_BUCKET_NAME
+ENV DJANGO_AWS_STORAGE_BUCKET_NAME=${DJANGO_AWS_STORAGE_BUCKET_NAME}
+ARG DJANGO_AWS_S3_CUSTOM_DOMAIN
+ENV DJANGO_AWS_S3_CUSTOM_DOMAIN=${DJANGO_AWS_S3_CUSTOM_DOMAIN}
+{%- elif cookiecutter.cloud_provider == 'GCP' %}
+ARG DJANGO_GCP_STORAGE_BUCKET_NAME
+ENV DJANGO_GCP_STORAGE_BUCKET_NAME=${DJANGO_GCP_STORAGE_BUCKET_NAME}
+{%- elif cookiecutter.cloud_provider == 'Azure' %}
+ARG DJANGO_AZURE_ACCOUNT_NAME
+ENV DJANGO_AZURE_ACCOUNT_NAME=${DJANGO_AZURE_ACCOUNT_NAME}
+{%- endif %}
+{%- endif %}
 RUN npm run build
 
 {%- endif %}
-
-# define an alias for the specfic python version used in this file.
-FROM python:${PYTHON_VERSION} as python
+# define an alias for the specific python version used in this file.
+FROM docker.io/python:3.11.7-slim-bookworm as python
 
 # Python build stage
-FROM python as python-build-stage
+FROM docker.io/python as python-build-stage
 
 ARG BUILD_ENVIRONMENT=production
 
@@ -37,7 +48,7 @@ RUN pip wheel --wheel-dir /usr/src/app/wheels  \
 
 
 # Python 'run' stage
-FROM python as python-run-stage
+FROM docker.io/python as python-run-stage
 
 ARG BUILD_ENVIRONMENT=production
 ARG APP_HOME=/app
@@ -92,14 +103,14 @@ RUN sed -i 's/\r$//g' /start-celerybeat
 RUN chmod +x /start-celerybeat
 
 
-COPY ./compose/production/django/celery/flower/start /start-flower
+COPY --chown=django:django ./compose/production/django/celery/flower/start /start-flower
 RUN sed -i 's/\r$//g' /start-flower
 RUN chmod +x /start-flower
 {%- endif %}
 
 
 # copy application code to WORKDIR
-{%- if cookiecutter.frontend_pipeline == 'Gulp' %}
+{%- if cookiecutter.frontend_pipeline in ['Gulp', 'Webpack'] %}
 COPY --from=client-builder --chown=django:django ${APP_HOME} ${APP_HOME}
 {% else %}
 COPY --chown=django:django . ${APP_HOME}
@@ -109,5 +120,12 @@ COPY --chown=django:django . ${APP_HOME}
 RUN chown django:django ${APP_HOME}
 
 USER django
+
+RUN DATABASE_URL="" \
+  {%- if cookiecutter.use_celery == "y" %}
+  CELERY_BROKER_URL="" \
+  {%- endif %}
+  DJANGO_SETTINGS_MODULE="config.settings.test" \
+  python manage.py compilemessages
 
 ENTRYPOINT ["/entrypoint"]

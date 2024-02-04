@@ -1,11 +1,9 @@
-ARG PYTHON_VERSION=3.9-slim-bullseye
-
-# define an alias for the specfic python version used in this file.
-FROM python:${PYTHON_VERSION} as python
+# define an alias for the specific python version used in this file.
+FROM docker.io/python:3.11.7-slim-bookworm as python
 
 
 # Python build stage
-FROM python as python-build-stage
+FROM docker.io/python as python-build-stage
 
 ENV PYTHONDONTWRITEBYTECODE 1
 
@@ -22,13 +20,13 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 COPY ./requirements /requirements
 
 # create python dependency wheels
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels  \
+RUN pip wheel --no-cache-dir --wheel-dir /usr/src/app/wheels  \
   -r /requirements/local.txt -r /requirements/production.txt \
   && rm -rf /requirements
 
 
 # Python 'run' stage
-FROM python as python-run-stage
+FROM docker.io/python as python-run-stage
 
 ARG BUILD_ENVIRONMENT
 ENV PYTHONUNBUFFERED 1
