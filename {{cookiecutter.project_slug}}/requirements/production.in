@@ -3,7 +3,7 @@
 -r base.in
 
 gunicorn  # https://github.com/benoitc/gunicorn
-psycopg2  # https://github.com/psycopg/psycopg2
+psycopg[c]  # https://github.com/psycopg/psycopg2
 {%- if cookiecutter.use_whitenoise == 'n' %}
 Collectfast  # https://github.com/antonagestam/collectfast
 {%- endif %}
@@ -17,9 +17,11 @@ hiredis  # https://github.com/redis/hiredis-py
 # Django
 # ------------------------------------------------------------------------------
 {%- if cookiecutter.cloud_provider == 'AWS' %}
-django-storages[boto3]  # https://github.com/jschneier/django-storages
+django-storages[s3]  # https://github.com/jschneier/django-storages
 {%- elif cookiecutter.cloud_provider == 'GCP' %}
 django-storages[google]  # https://github.com/jschneier/django-storages
+{%- elif cookiecutter.cloud_provider == 'Azure' %}
+django-storages[azure]  # https://github.com/jschneier/django-storages
 {%- endif %}
 {%- if cookiecutter.mail_service == 'Mailgun' %}
 django-anymail[mailgun]  # https://github.com/anymail/django-anymail
