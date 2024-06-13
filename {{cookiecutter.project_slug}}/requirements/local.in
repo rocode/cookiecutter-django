@@ -29,15 +29,9 @@ sphinx-autobuild # https://github.com/GaretJax/sphinx-autobuild
 
 # Code quality
 # ------------------------------------------------------------------------------
-flake8  # https://github.com/PyCQA/flake8
-flake8-isort  # https://github.com/gforcada/flake8-isort
+ruff  # https://github.com/astral-sh/ruff
 coverage  # https://github.com/nedbat/coveragepy
-black  # https://github.com/psf/black
 djlint  # https://github.com/Riverside-Healthcare/djLint
-pylint-django  # https://github.com/PyCQA/pylint-django
-{%- if cookiecutter.use_celery == 'y' %}
-pylint-celery  # https://github.com/PyCQA/pylint-celery
-{%- endif %}
 pre-commit  # https://github.com/pre-commit/pre-commit
 
 # Django
