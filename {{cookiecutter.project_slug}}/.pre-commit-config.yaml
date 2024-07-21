@@ -15,7 +15,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: c4a0b883114b00d8d76b479c820ce7950211c99b  # frozen: v4.5.0
+    rev: 2c9f875913ee60ca25ce70243dc24d5b6415598c  # frozen: v4.6.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -37,14 +37,14 @@ repos:
         exclude: '{{cookiecutter.project_slug}}/templates/'
 
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: '5353187fa24deb65a87d7428f9538c3958a4edfd'  # frozen: 1.15.0
+    rev: '18e08911d044ca9078987eb0c638ec918d474cb1'  # frozen: 1.20.0
     hooks:
       - id: django-upgrade
         args: ['--target-version', '4.2']
 
   # Run the Ruff linter.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.8
+    rev: cbaa26132c4c2e41aec5c64ee91e2f1c47bf5cad  # frozen: v0.5.4
     hooks:
       # Linter
       - id: ruff
@@ -59,7 +59,7 @@ repos:
       - id: djlint-django
 
   - repo: https://github.com/jorisroovers/gitlint
-    rev: 4d96698f756df4f9f510de95099d987cd7182de2  # frozen: v0.17.0
+    rev: acc9d9de6369b76d22cb4167029d2035e8730b98  # frozen: v0.19.1
     hooks:
       - id: gitlint
         args: [--contrib=CT1, --ignore=B6, --msg-filename]
